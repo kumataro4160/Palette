@@ -15,7 +15,7 @@ namespace palette
 		FRM prevOut = FRM(0.0);
 		for(ZTM t = 0; t < wavLength; ++t)
 		{
-			ret[t] = prevOut + func(wav[t] - prevOut);
+			ret[t] = prevOut + func(wav(t) - prevOut);
 			prevOut = ret[t];
 		}
 		return ret;

@@ -57,10 +57,10 @@ namespace palette
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> processNormalization(const WAV<FRM>& wav, bool forEach = false)
+	constexpr WAV<FRM> processNormalization(const WAV<FRM>& wav, bool forEachChl = false)
 	{
 		const FRM rMaxAp = extractMaxAPFRM(wav);
-		if(forEach)
+		if(forEachChl)
 		{
 			return wav / rMaxAp;
 		}
@@ -68,10 +68,10 @@ namespace palette
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> processNormalization(WAV<FRM>&& wav, bool forEach = false)
+	constexpr WAV<FRM> processNormalization(WAV<FRM>&& wav, bool forEachChl = false)
 	{
 		const FRM rMaxAp = extractMaxAPFRM(wav);
-		if(forEach)
+		if(forEachChl)
 		{
 			return wav /= rMaxAp;
 		}

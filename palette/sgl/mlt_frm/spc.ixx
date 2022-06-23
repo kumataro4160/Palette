@@ -5,6 +5,7 @@ module;
 export module palette.sgl.spc;
 
 export import palette.ztm;
+export import palette.ntm;
 export import palette.value_type;
 
 export namespace palette
@@ -60,6 +61,7 @@ export namespace palette
 		}
 		constexpr SPC& operator+=(const FRM& frm)noexcept
 		{
+#pragma omp for
 			for(FRM& f : frms)
 			{
 				f += frm;
@@ -68,6 +70,7 @@ export namespace palette
 		}
 		constexpr SPC& operator-=(const FRM& frm)noexcept
 		{
+#pragma omp for
 			for(FRM& f : frms)
 			{
 				f -= frm;
@@ -76,6 +79,7 @@ export namespace palette
 		}
 		constexpr SPC& operator*=(value_t value)noexcept
 		{
+#pragma omp for
 			for(FRM& f : frms)
 			{
 				f *= value;
@@ -88,6 +92,7 @@ export namespace palette
 		}
 		constexpr SPC& calcElementwiseProduct(const FRM& frm)noexcept
 		{
+#pragma omp for
 			for(FRM& f : frms)
 			{
 				f.calcElementwiseProduct(frm);
@@ -102,9 +107,9 @@ export namespace palette
 		{
 			return SPC<FRM>(*this) *= -1.0;
 		}
-		constexpr ZTM getLength()const noexcept
+		constexpr NTM getLength()const noexcept
 		{
-			return static_cast<ZTM>(frms.size());
+			return static_cast<NTM>(frms.size());
 		}
 		constexpr auto begin()noexcept
 		{
@@ -217,6 +222,7 @@ export namespace palette
 	{
 		const ZTM wavLength = right.getLength();
 		SPC<FRM> ret(wavLength);
+#pragma omp for
 		for(ZTM t = 0; t < wavLength; ++t)
 		{
 			ret[t] = calcElementwiseQuotient(FRM(left), right[t]);
@@ -265,6 +271,7 @@ export namespace palette
 	{
 		const ZTM wavLength = right.getLength();
 		SPC<FRM> ret(wavLength);
+#pragma omp for
 		for(ZTM t = 0; t < wavLength; ++t)
 		{
 			ret[t] = calcElementwiseQuotient(left, right[t]);
@@ -275,6 +282,7 @@ export namespace palette
 	template <class FRM>
 	constexpr SPC<FRM> calcElementwiseQuotient(const FRM& left, SPC<FRM>&& right)
 	{
+#pragma omp for
 		for(FRM& rightFrm : right)
 		{
 			rightFrm = calcElementwiseQuotient(left, rightFrm);

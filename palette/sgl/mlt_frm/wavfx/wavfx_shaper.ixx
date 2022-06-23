@@ -14,7 +14,7 @@ namespace palette
 		WAV<FRM> ret(wavLength);
 		for(ZTM t = 0; t < wavLength; ++t)
 		{
-			ret[t] = func(wav[t]);
+			ret[t] = func(wav(t));
 		}
 		return ret;
 	}
