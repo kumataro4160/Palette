@@ -1,8 +1,6 @@
-module;
-
-#include <utility>
-
 export module palette.sgl.ste;
+
+export import palette.value_type;
 
 export namespace palette
 {
@@ -43,40 +41,26 @@ export namespace palette
 			r -= ste.r;
 			return *this;
 		}
-		constexpr STE &operator*=(const STE &ste)noexcept
+		constexpr STE& operator*=(value_t value)noexcept
+		{
+			l *= value;
+			r *= value;
+			return *this;
+		}
+		constexpr STE& operator/=(value_t value)noexcept
+		{
+			return (*this) *= (1.0 / value);
+		}
+		constexpr STE& calcElementwiseProduct(const STE& ste)noexcept
 		{
 			l *= ste.l;
 			r *= ste.r;
 			return *this;
 		}
-		constexpr STE &operator/=(const STE &ste)noexcept
+		constexpr STE& calcElementwiseQuotient(const STE& ste)noexcept
 		{
 			l /= ste.l;
 			r /= ste.r;
-			return *this;
-		}
-		constexpr STE &operator+=(const SMP &t)noexcept
-		{
-			l += t;
-			r += t;
-			return *this;
-		}
-		constexpr STE &operator-=(const SMP &t)noexcept
-		{
-			l -= t;
-			r -= t;
-			return *this;
-		}
-		constexpr STE &operator*=(const SMP &t)noexcept
-		{
-			l *= t;
-			r *= t;
-			return *this;
-		}
-		constexpr STE &operator/=(const SMP &t)noexcept
-		{
-			l /= t;
-			r /= t;
 			return *this;
 		}
 		constexpr STE operator-()const noexcept
@@ -98,7 +82,11 @@ export namespace palette
 		{
 			return STE(r, l);
 		}
-		//í«â¡ÅFçsóÒÇ≈èÊéZ
+		template <class SGL>
+		constexpr STE<SGL> calcMatrixProduct(const SGL& sgl)const
+		{
+			return STE<SGL>(sgl * l, sgl * r);
+		}
 	};
 	
 	template <class SMP>
@@ -138,38 +126,80 @@ export namespace palette
 	}
 
 	template <class SMP>
-	constexpr STE<SMP> operator*(const STE<SMP> &left, const STE<SMP> &right)noexcept
+	constexpr STE<SMP> operator*(const STE<SMP>& left, value_t right)noexcept
 	{
 		return STE(left) *= right;
 	}
 
 	template <class SMP>
-	constexpr STE<SMP> operator*(STE<SMP> &&left, const STE<SMP> &right)noexcept
+	constexpr STE<SMP> operator*(STE<SMP>&& left, value_t right)noexcept
 	{
 		return left *= right;
 	}
 
 	template <class SMP>
-	constexpr STE<SMP> operator*(const STE<SMP> &left, STE<SMP> &&right)noexcept
+	constexpr STE<SMP> operator*(value_t left, const STE<SMP>& right)noexcept
+	{
+		return STE(right) *= left;
+	}
+
+	template <class SMP>
+	constexpr STE<SMP> operator*(value_t left, STE<SMP>&& right)noexcept
 	{
 		return right *= left;
 	}
 
 	template <class SMP>
-	constexpr STE<SMP> operator*(STE<SMP> &&left, STE<SMP> &&right)noexcept
-	{
-		return left *= right;
-	}
-
-	template <class SMP>
-	constexpr STE<SMP> operator/(const STE<SMP> &left, const STE<SMP> &right)noexcept
+	constexpr STE<SMP> operator/(const STE<SMP>& left, value_t right)noexcept
 	{
 		return STE(left) /= right;
 	}
 
 	template <class SMP>
-	constexpr STE<SMP> operator/(STE<SMP> &&left, const STE<SMP> &right)noexcept
+	constexpr STE<SMP> operator/(STE<SMP>&& left, value_t right)noexcept
 	{
 		return left /= right;
+	}
+
+	template <class SMP>
+	constexpr STE<SMP> operator/(value_t left, const STE<SMP>& right)noexcept
+	{
+		return calcElementwiseQuotient(STE<SMP>(left), right);
+	}
+
+	template <class SMP>
+	constexpr STE<SMP> calcElementwiseProduct(const STE<SMP> &left, const STE<SMP> &right)noexcept
+	{
+		return STE(left).calcElementwiseProduct(right);
+	}
+
+	template <class SMP>
+	constexpr STE<SMP> calcElementwiseProduct(STE<SMP> &&left, const STE<SMP> &right)noexcept
+	{
+		return left.calcElementwiseProduct(right);
+	}
+
+	template <class SMP>
+	constexpr STE<SMP> calcElementwiseProduct(const STE<SMP> &left, STE<SMP> &&right)noexcept
+	{
+		return right.calcElementwiseProduct(left);
+	}
+
+	template <class SMP>
+	constexpr STE<SMP> calcElementwiseProduct(STE<SMP> &&left, STE<SMP> &&right)noexcept
+	{
+		return left.calcElementwiseProduct(right);
+	}
+
+	template <class SMP>
+	constexpr STE<SMP> calcElementwiseQuotient(const STE<SMP> &left, const STE<SMP> &right)noexcept
+	{
+		return STE(left).calcElementwiseQuotient(right);
+	}
+
+	template <class SMP>
+	constexpr STE<SMP> calcElementwiseQuotient(STE<SMP> &&left, const STE<SMP> &right)noexcept
+	{
+		return left.calcElementwiseQuotient(right);
 	}
 }

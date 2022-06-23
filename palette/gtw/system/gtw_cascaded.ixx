@@ -26,6 +26,11 @@ export namespace palette
 		{
 			return gtw1.at<FRM>(t, gtw2, gtws...);
 		}
+		template <class FRM, class...GTWs>
+		constexpr FRM operator()(ZTM t, const GTWs&...gtws)const
+		{
+			return gtw1.operator()<FRM>(t, gtw2, gtws...);
+		}
 	};
 
 	template <class GTW1>
@@ -48,6 +53,11 @@ export namespace palette
 		constexpr const FRM& at(ZTM t, const GTWs&...gtws)const
 		{
 			return gtw1.at<FRM>(t, gtws...);
+		}
+		template <class FRM, class...GTWs>
+		constexpr FRM operator()(ZTM t, const GTWs&...gtws)const
+		{
+			return gtw1.operator()<FRM>(t, gtws...);
 		}
 	};
 }

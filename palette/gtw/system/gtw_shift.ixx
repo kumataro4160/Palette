@@ -29,6 +29,11 @@ export namespace palette
 		{
 			return gtw1.at<FRM>(shift(t), gtws...);
 		}
+		template <class FRM, class GTW1, class...GTWs>
+		constexpr FRM operator()(ZTM t, const GTW1& gtw1, const GTWs&...gtws)const
+		{
+			return gtw1.operator()<FRM>(shift(t), gtws...);
+		}
 		constexpr Shift& operator>>=(ZTM t)noexcept
 		{
 			offset += t;

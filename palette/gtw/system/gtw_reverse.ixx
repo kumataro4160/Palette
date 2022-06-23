@@ -29,6 +29,11 @@ export namespace palette
 		{
 			return gtw1.at<FRM>(reverse(t), gtws...);
 		}
+		template <class FRM, class GTW1, class...GTWs>
+		constexpr FRM operator()(ZTM t, const GTW1& gtw1, const GTWs&...gtws)const
+		{
+			return gtw1.operator()<FRM>(reverse(t), gtws...);
+		}
 		constexpr void setAxis(ZTM axis)noexcept
 		{
 			offset = 2 * axis;

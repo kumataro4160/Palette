@@ -1,6 +1,7 @@
 export module palette.sgl.mns;
 
 export import palette.sgl.ste;
+export import palette.value_type;
 
 export namespace palette
 {
@@ -50,115 +51,161 @@ export namespace palette
 			s -= mns.s;
 			return *this;
 		}
-		constexpr MNS &operator*=(const MNS &mns)noexcept
+		constexpr MNS &operator*=(value_t value)noexcept
+		{
+			m *= value;
+			s *= value;
+			return *this;
+		}
+		constexpr MNS &operator/=(value_t value)noexcept
+		{
+			return (*this) *= (1.0 / value);
+		}
+		constexpr MNS& calcElementwiseProduct(const MNS& mns)noexcept
 		{
 			m *= mns.m;
 			s *= mns.s;
 			return *this;
 		}
-		constexpr MNS &operator/=(const MNS &mns)noexcept
+		constexpr MNS& calcElementwiseQuotient(const MNS& mns)noexcept
 		{
 			m /= mns.m;
 			s /= mns.s;
-			return *this;
-		}
-		constexpr MNS &operator+=(const SMP &t)noexcept
-		{
-			m += t;
-			return *this;
-		}
-		constexpr MNS &operator-=(const SMP &t)noexcept
-		{
-			m -= t;
-			return *this;
-		}
-		constexpr MNS &operator*=(const SMP &t)noexcept
-		{
-			m *= t;
-			s *= t;
-			return *this;
-		}
-		constexpr MNS &operator/=(const SMP &t)noexcept
-		{
-			m /= t;
-			s /= t;
 			return *this;
 		}
 		constexpr MNS operator-()const noexcept
 		{
 			return MNS(-m, -s);
 		}
+		constexpr MNS swap()noexcept
+		{
+			const SMP tmp = m;
+			m = s;
+			s = tmp;
+			return *this;
+		}
+		constexpr MNS makeSwapped()const noexcept
+		{
+			return MNS(s, m);
+		}
+		template <class SGL>
+		constexpr MNS<SGL> calcMatrixProduct(const SGL& sgl)const
+		{
+			return MNS<SGL>(sgl * m, sgl * s);
+		}
 	};
 
 	template <class SMP>
-	constexpr MNS<SMP> operator+(const MNS<SMP> &left, const MNS<SMP> &right)noexcept
+	constexpr MNS<SMP> operator+(const MNS<SMP>& left, const MNS<SMP>& right)noexcept
 	{
 		return MNS(left) += right;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator+(MNS<SMP> &&left, const MNS<SMP> &right)noexcept
+	constexpr MNS<SMP> operator+(MNS<SMP>&& left, const MNS<SMP>& right)noexcept
 	{
 		return left += right;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator+(const MNS<SMP> &left, MNS<SMP> &&right)noexcept
+	constexpr MNS<SMP> operator+(const MNS<SMP>& left, MNS<SMP>&& right)noexcept
 	{
 		return right += left;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator+(MNS<SMP> &&left, MNS<SMP> &&right)noexcept
+	constexpr MNS<SMP> operator+(MNS<SMP>&& left, MNS<SMP>&& right)noexcept
 	{
 		return left += right;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator-(const MNS<SMP> &left, const MNS<SMP> &right)noexcept
+	constexpr MNS<SMP> operator-(const MNS<SMP>& left, const MNS<SMP>& right)noexcept
 	{
 		return MNS(left) -= right;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator-(MNS<SMP> &&left, const MNS<SMP> &right)noexcept
+	constexpr MNS<SMP> operator-(MNS<SMP>&& left, const MNS<SMP>& right)noexcept
 	{
 		return left -= right;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator*(const MNS<SMP> &left, const MNS<SMP> &right)noexcept
+	constexpr MNS<SMP> operator*(const MNS<SMP>& left, value_t right)noexcept
 	{
 		return MNS(left) *= right;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator*(MNS<SMP> &&left, const MNS<SMP> &right)noexcept
+	constexpr MNS<SMP> operator*(MNS<SMP>&& left, value_t right)noexcept
 	{
 		return left *= right;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator*(const MNS<SMP> &left, MNS<SMP> &&right)noexcept
+	constexpr MNS<SMP> operator*(value_t left, const MNS<SMP>& right)noexcept
+	{
+		return MNS(right) *= left;
+	}
+
+	template <class SMP>
+	constexpr MNS<SMP> operator*(value_t left, MNS<SMP>&& right)noexcept
 	{
 		return right *= left;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator*(MNS<SMP> &&left, MNS<SMP> &&right)noexcept
-	{
-		return left *= right;
-	}
-
-	template <class SMP>
-	constexpr MNS<SMP> operator/(const MNS<SMP> &left, const MNS<SMP> &right)noexcept
+	constexpr MNS<SMP> operator/(const MNS<SMP>& left, value_t right)noexcept
 	{
 		return MNS(left) /= right;
 	}
 
 	template <class SMP>
-	constexpr MNS<SMP> operator/(MNS<SMP> &&left, const MNS<SMP> &right)noexcept
+	constexpr MNS<SMP> operator/(MNS<SMP>&& left, value_t right)noexcept
 	{
 		return left /= right;
+	}
+
+	template <class SMP>
+	constexpr MNS<SMP> operator/(value_t left, const MNS<SMP>& right)noexcept
+	{
+		return calcElementwiseQuotient(MNS<SMP>(left), right);
+	}
+
+	template <class SMP>
+	constexpr MNS<SMP> calcElementwiseProduct(const MNS<SMP>& left, const MNS<SMP>& right)noexcept
+	{
+		return MNS(left).calcElementwiseProduct(right);
+	}
+
+	template <class SMP>
+	constexpr MNS<SMP> calcElementwiseProduct(MNS<SMP>&& left, const MNS<SMP>& right)noexcept
+	{
+		return left.calcElementwiseProduct(right);
+	}
+
+	template <class SMP>
+	constexpr MNS<SMP> calcElementwiseProduct(const MNS<SMP>& left, MNS<SMP>&& right)noexcept
+	{
+		return right.calcElementwiseProduct(left);
+	}
+
+	template <class SMP>
+	constexpr MNS<SMP> calcElementwiseProduct(MNS<SMP>&& left, MNS<SMP>&& right)noexcept
+	{
+		return left.calcElementwiseProduct(right);
+	}
+
+	template <class SMP>
+	constexpr MNS<SMP> calcElementwiseQuotient(const MNS<SMP>& left, const MNS<SMP>& right)noexcept
+	{
+		return MNS(left).calcElementwiseQuotient(right);
+	}
+
+	template <class SMP>
+	constexpr MNS<SMP> calcElementwiseQuotient(MNS<SMP>&& left, const MNS<SMP>& right)noexcept
+	{
+		return left.calcElementwiseQuotient(right);
 	}
 }

@@ -4,6 +4,8 @@ module;
 
 export module palette.sgl.mlt;
 
+export import palette.value_type;
+
 export namespace palette
 {
 	template <class SMP, size_t N>
@@ -79,7 +81,20 @@ export namespace palette
 			}
 			return *this;
 		}
-		constexpr MLT &operator*=(const MLT &mlt)noexcept
+		constexpr MLT &operator*=(value_t value)noexcept
+		{
+#pragma omp for
+			for(size_t i = 0; i < N; ++i)
+			{
+				smps[i] *= value;
+			}
+			return *this;
+		}
+		constexpr MLT &operator/=(value_t value)noexcept
+		{
+			return (*this) *= (1.0 / value);
+		}
+		constexpr MLT& calcElementwiseProduct(const MLT& mlt)noexcept
 		{
 #pragma omp for
 			for(size_t i = 0; i < N; ++i)
@@ -88,52 +103,12 @@ export namespace palette
 			}
 			return *this;
 		}
-		constexpr MLT &operator/=(const MLT &mlt)noexcept
+		constexpr MLT& calcElementwiseQuotient(const MLT& mlt)noexcept
 		{
 #pragma omp for
 			for(size_t i = 0; i < N; ++i)
 			{
 				smps[i] /= mlt.smps[i];
-			}
-			return *this;
-		}
-		template <class T>
-		constexpr MLT &operator+=(const T &t)noexcept
-		{
-#pragma omp for
-			for(size_t i = 0; i < N; ++i)
-			{
-				smps[i] += t;
-			}
-			return *this;
-		}
-		template <class T>
-		constexpr MLT &operator-=(const T &t)noexcept
-		{
-#pragma omp for
-			for(size_t i = 0; i < N; ++i)
-			{
-				smps[i] -= t;
-			}
-			return *this;
-		}
-		template <class T>
-		constexpr MLT &operator*=(const T &t)noexcept
-		{
-#pragma omp for
-			for(size_t i = 0; i < N; ++i)
-			{
-				smps[i] *= t;
-			}
-			return *this;
-		}
-		template <class T>
-		constexpr MLT &operator/=(const T &t)noexcept
-		{
-#pragma omp for
-			for(size_t i = 0; i < N; ++i)
-			{
-				smps[i] /= t;
 			}
 			return *this;
 		}
@@ -151,7 +126,17 @@ export namespace palette
 			}
 			return ret / N;
 		}
-		//’Ç‰ÁFs—ñ‚ÅæŽZ
+		template <class SGL>
+		constexpr MLT<SGL, N> calcMatrixProduct(const SGL& sgl)const
+		{
+			MLT<SGL, N> ret;
+#pragma omp for
+			for(size_t i = 0; i < N; ++i)
+			{
+				ret[i] = sgl * smps[i];
+			}
+			return ret;
+		}
 	};
 
 	template <class SMP, size_t N>
@@ -191,38 +176,86 @@ export namespace palette
 	}
 
 	template <class SMP, size_t N>
-	constexpr MLT<SMP, N> operator*(const MLT<SMP, N> &left, const MLT<SMP, N> &right)noexcept
+	constexpr MLT<SMP, N> operator*(const MLT<SMP, N>& left, value_t right)noexcept
 	{
 		return MLT(left) *= right;
 	}
 
 	template <class SMP, size_t N>
-	constexpr MLT<SMP, N> operator*(MLT<SMP, N> &&left, const MLT<SMP, N> &right)noexcept
+	constexpr MLT<SMP, N> operator*(MLT<SMP, N>&& left, value_t right)noexcept
 	{
 		return left *= right;
 	}
 
 	template <class SMP, size_t N>
-	constexpr MLT<SMP, N> operator*(const MLT<SMP, N> &left, MLT<SMP, N> &&right)noexcept
+	constexpr MLT<SMP, N> operator*(value_t left, const MLT<SMP, N>& right)noexcept
+	{
+		return MLT(right) *= left;
+	}
+
+	template <class SMP, size_t N>
+	constexpr MLT<SMP, N> operator*(value_t left, MLT<SMP, N>&& right)noexcept
 	{
 		return right *= left;
 	}
 
 	template <class SMP, size_t N>
-	constexpr MLT<SMP, N> operator*(MLT<SMP, N> &&left, MLT<SMP, N> &&right)noexcept
-	{
-		return left *= right;
-	}
-
-	template <class SMP, size_t N>
-	constexpr MLT<SMP, N> operator/(const MLT<SMP, N> &left, const MLT<SMP, N> &right)noexcept
+	constexpr MLT<SMP, N> operator/(const MLT<SMP, N>& left, value_t right)noexcept
 	{
 		return MLT(left) /= right;
 	}
 
 	template <class SMP, size_t N>
-	constexpr MLT<SMP, N> operator/(MLT<SMP, N> &&left, const MLT<SMP, N> &right)noexcept
+	constexpr MLT<SMP, N> operator/(MLT<SMP, N>&& left, value_t right)noexcept
 	{
 		return left /= right;
+	}
+
+	template <class SMP, size_t N>
+	constexpr MLT<SMP, N> operator/(value_t left, const MLT<SMP, N>& right)noexcept
+	{
+		MLT<SMP, N> ret;
+#pragma omp for
+		for(size_t i = 0; i < N; ++i)
+		{
+			ret[i] = left / right[i];
+		}
+		return ret;
+	}
+
+	template <class SMP, size_t N>
+	constexpr MLT<SMP, N> calcElementwiseProduct(const MLT<SMP, N> &left, const MLT<SMP, N> &right)noexcept
+	{
+		return MLT(left).calcElementwiseProduct(right);
+	}
+
+	template <class SMP, size_t N>
+	constexpr MLT<SMP, N> calcElementwiseProduct(MLT<SMP, N> &&left, const MLT<SMP, N> &right)noexcept
+	{
+		return left.calcElementwiseProduct(right);
+	}
+
+	template <class SMP, size_t N>
+	constexpr MLT<SMP, N> calcElementwiseProduct(const MLT<SMP, N> &left, MLT<SMP, N> &&right)noexcept
+	{
+		return right.calcElementwiseProduct(left);
+	}
+
+	template <class SMP, size_t N>
+	constexpr MLT<SMP, N> calcElementwiseProduct(MLT<SMP, N> &&left, MLT<SMP, N> &&right)noexcept
+	{
+		return left.calcElementwiseProduct(right);
+	}
+
+	template <class SMP, size_t N>
+	constexpr MLT<SMP, N> calcElementwiseQuotient(const MLT<SMP, N> &left, const MLT<SMP, N> &right)noexcept
+	{
+		return MLT(left).calcElementwiseQuotient(right);
+	}
+
+	template <class SMP, size_t N>
+	constexpr MLT<SMP, N> calcElementwiseQuotient(MLT<SMP, N> &&left, const MLT<SMP, N> &right)noexcept
+	{
+		return left.calcElementwiseQuotient(right);
 	}
 }

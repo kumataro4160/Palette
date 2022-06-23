@@ -5,6 +5,7 @@ module;
 export module palette.sgl.spc;
 
 export import palette.ztm;
+export import palette.value_type;
 
 export namespace palette
 {
@@ -57,6 +58,50 @@ export namespace palette
 			}
 			return FRM(0.0);
 		}
+		constexpr SPC& operator+=(const FRM& frm)noexcept
+		{
+			for(FRM& f : frms)
+			{
+				f += frm;
+			}
+			return *this;
+		}
+		constexpr SPC& operator-=(const FRM& frm)noexcept
+		{
+			for(FRM& f : frms)
+			{
+				f -= frm;
+			}
+			return *this;
+		}
+		constexpr SPC& operator*=(value_t value)noexcept
+		{
+			for(FRM& f : frms)
+			{
+				f *= value;
+			}
+			return *this;
+		}
+		constexpr SPC& operator/=(value_t value)noexcept
+		{
+			return (*this) *= (1.0 / value);
+		}
+		constexpr SPC& calcElementwiseProduct(const FRM& frm)noexcept
+		{
+			for(FRM& f : frms)
+			{
+				f.calcElementwiseProduct(frm);
+			}
+			return *this;
+		}
+		constexpr SPC& calcElementwiseQuotient(const FRM& frm)noexcept
+		{
+			return this->calcElementwiseQuotient(FRM(1.0).calcElementwiseQuotient(frm));
+		}
+		constexpr SPC operator-()const
+		{
+			return SPC<FRM>(*this) *= -1.0;
+		}
 		constexpr ZTM getLength()const noexcept
 		{
 			return static_cast<ZTM>(frms.size());
@@ -77,5 +122,163 @@ export namespace palette
 		{
 			return frms.end();
 		}
+		constexpr void resize(size_t n)
+		{
+			frms.resize(n);
+		}
 	};
+
+	template <class FRM>
+	constexpr SPC<FRM> operator+(const SPC<FRM>& left, const FRM& right)
+	{
+		return SPC<FRM>(left) += right;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator+(SPC<FRM>&& left, const FRM& right)
+	{
+		return left += right;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator+(const FRM& left, const SPC<FRM>& right)
+	{
+		return SPC<FRM>(right) += left;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator+(const FRM& left, SPC<FRM>&& right)
+	{
+		return right += left;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator-(const SPC<FRM>& left, const FRM& right)
+	{
+		return SPC<FRM>(left) -= right;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator-(SPC<FRM>&& left, const FRM& right)
+	{
+		return left -= right;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator-(const FRM& left, const SPC<FRM>& right)
+	{
+		return -right += left;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator-(const FRM& left, SPC<FRM>&& right)
+	{
+		return (right *= -1.0) += left;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator*(const SPC<FRM>& left, value_t right)
+	{
+		return SPC<FRM>(left) *= right;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator*(SPC<FRM>&& left, value_t right)
+	{
+		return left *= right;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator*(value_t left, const SPC<FRM>& right)
+	{
+		return SPC<FRM>(right) *= left;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator*(value_t left, SPC<FRM>&& right)
+	{
+		return right *= left;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator/(const SPC<FRM>& left, value_t right)
+	{
+		return SPC<FRM>(left) /= right;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator/(SPC<FRM>&& left, value_t right)
+	{
+		return left /= right;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> operator/(value_t left, const SPC<FRM>& right)
+	{
+		const ZTM wavLength = right.getLength();
+		SPC<FRM> ret(wavLength);
+		for(ZTM t = 0; t < wavLength; ++t)
+		{
+			ret[t] = calcElementwiseQuotient(FRM(left), right[t]);
+		}
+		return ret;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> calcElementwiseProduct(const SPC<FRM>& left, const FRM& right)
+	{
+		return SPC<FRM>(left).calcElementwiseProduct(right);
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> calcElementwiseProduct(SPC<FRM>&& left, const FRM& right)
+	{
+		return left.calcElementwiseProduct(right);
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> calcElementwiseProduct(const FRM& left, const SPC<FRM>& right)
+	{
+		return SPC<FRM>(right).calcElementwiseProduct(left);
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> calcElementwiseProduct(const FRM& left, SPC<FRM>&& right)
+	{
+		return right.calcElementwiseProduct(left);
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> calcElementwiseQuotient(const SPC<FRM>& left, const FRM& right)
+	{
+		return SPC<FRM>(left).calcElementwiseQuotient(right);
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> calcElementwiseQuotient(SPC<FRM>&& left, const FRM& right)
+	{
+		return left.calcElementwiseQuotient(right);
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> calcElementwiseQuotient(const FRM& left, const SPC<FRM>& right)
+	{
+		const ZTM wavLength = right.getLength();
+		SPC<FRM> ret(wavLength);
+		for(ZTM t = 0; t < wavLength; ++t)
+		{
+			ret[t] = calcElementwiseQuotient(left, right[t]);
+		}
+		return ret;
+	}
+
+	template <class FRM>
+	constexpr SPC<FRM> calcElementwiseQuotient(const FRM& left, SPC<FRM>&& right)
+	{
+		for(FRM& rightFrm : right)
+		{
+			rightFrm = calcElementwiseQuotient(left, rightFrm);
+		}
+		return right;
+	}
 }

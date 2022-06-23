@@ -43,6 +43,15 @@ export namespace palette
 			}
 			return FRM(0.0);
 		}
+		template <class FRM, class GTW1, class...GTWs>
+		constexpr FRM operator()(ZTM t, const GTW1& gtw1, const GTWs&...gtws)const
+		{
+			if(startTime <= t && t < endTime)
+			{
+				return gtw1.operator()<FRM>(t, gtws...);
+			}
+			return FRM(0.0);
+		}
 		constexpr void setStartTime(ZTM startTime)noexcept
 		{
 			this->startTime = startTime;

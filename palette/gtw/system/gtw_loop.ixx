@@ -33,6 +33,11 @@ export namespace palette
 		{
 			return gtw1.at<FRM>(loop(t), gtws...);
 		}
+		template <class FRM, class GTW1, class...GTWs>
+		constexpr FRM operator()(ZTM t, const GTW1& gtw1, const GTWs&...gtws)const
+		{
+			return gtw1.operator()<FRM>(loop(t), gtws...);
+		}
 		constexpr void setCycleTime(ZTM cycle)noexcept
 		{
 			this->cycle = cycle == 0 ? 1 : cycle;

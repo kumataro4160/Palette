@@ -5,6 +5,7 @@ module;
 export module palette.sgl.wav;
 
 export import palette.ztm;
+export import palette.value_type;
 
 export namespace palette
 {
@@ -23,12 +24,12 @@ export namespace palette
 		{
 
 		}
-		constexpr explicit WAV(const std::vector<FRM> &wav) :
+		constexpr explicit WAV(const std::vector<FRM>& wav) :
 			frms(wav)
 		{
 
 		}
-		constexpr explicit WAV(std::vector<FRM> &&wav)noexcept :
+		constexpr explicit WAV(std::vector<FRM>&& wav)noexcept :
 			frms(std::move(wav))
 		{
 
@@ -57,33 +58,45 @@ export namespace palette
 			}
 			return FRM(0.0);
 		}
-		constexpr WAV& operator+=(const FRM& f)noexcept
+		constexpr WAV& operator+=(const FRM& frm)noexcept
 		{
-			for(FRM& frm : frms)
+			for(FRM& f : frms)
 			{
-				frm += f;
+				f += frm;
 			}
 			return *this;
 		}
-		constexpr WAV& operator-=(const FRM& f)noexcept
+		constexpr WAV& operator-=(const FRM& frm)noexcept
 		{
-			for(FRM& frm : frms)
+			for(FRM& f : frms)
 			{
-				frm -= f;
+				f -= frm;
 			}
 			return *this;
 		}
-		constexpr WAV& operator*=(const FRM& f)noexcept
+		constexpr WAV& operator*=(value_t value)noexcept
 		{
-			for(FRM& frm : frms)
+			for(FRM& f : frms)
 			{
-				frm *= f;
+				f *= value;
 			}
 			return *this;
 		}
-		constexpr WAV& operator/=(const FRM& f)noexcept
+		constexpr WAV& operator/=(value_t value)noexcept
 		{
-			return (*this) *= (FRM(1.0) /= f);
+			return (*this) *= (1.0 / value);
+		}
+		constexpr WAV& calcElementwiseProduct(const FRM& frm)noexcept
+		{
+			for(FRM& f : frms)
+			{
+				f.calcElementwiseProduct(frm);
+			}
+			return *this;
+		}
+		constexpr WAV& calcElementwiseQuotient(const FRM& frm)noexcept
+		{
+			return this->calcElementwiseQuotient(FRM(1.0).calcElementwiseQuotient(frm));
 		}
 		constexpr WAV operator-()const
 		{
@@ -164,59 +177,107 @@ export namespace palette
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> operator*(const WAV<FRM>& left, const FRM& right)
+	constexpr WAV<FRM> operator*(const WAV<FRM>& left, value_t right)
 	{
 		return WAV<FRM>(left) *= right;
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> operator*(WAV<FRM>&& left, const FRM& right)
+	constexpr WAV<FRM> operator*(WAV<FRM>&& left, value_t right)
 	{
 		return left *= right;
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> operator*(const FRM& left, const WAV<FRM>& right)
+	constexpr WAV<FRM> operator*(value_t left, const WAV<FRM>& right)
 	{
 		return WAV<FRM>(right) *= left;
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> operator*(const FRM& left, WAV<FRM>&& right)
+	constexpr WAV<FRM> operator*(value_t left, WAV<FRM>&& right)
 	{
 		return right *= left;
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> operator/(const WAV<FRM>& left, const FRM& right)
+	constexpr WAV<FRM> operator/(const WAV<FRM>& left, value_t right)
 	{
 		return WAV<FRM>(left) /= right;
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> operator/(WAV<FRM>&& left, const FRM& right)
+	constexpr WAV<FRM> operator/(WAV<FRM>&& left, value_t right)
 	{
 		return left /= right;
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> operator/(const FRM& left, const WAV<FRM>& right)
+	constexpr WAV<FRM> operator/(value_t left, const WAV<FRM>& right)
 	{
 		const ZTM wavLength = right.getLength();
 		WAV<FRM> ret(wavLength);
 		for(ZTM t = 0; t < wavLength; ++t)
 		{
-			ret[t] = left / right[t];
+			ret[t] = calcElementwiseQuotient(FRM(left), right[t]);
 		}
 		return ret;
 	}
 
 	template <class FRM>
-	constexpr WAV<FRM> operator/(const FRM& left, WAV<FRM>&& right)
+	constexpr WAV<FRM> calcElementwiseProduct(const WAV<FRM>& left, const FRM& right)
+	{
+		return WAV<FRM>(left).calcElementwiseProduct(right);
+	}
+
+	template <class FRM>
+	constexpr WAV<FRM> calcElementwiseProduct(WAV<FRM>&& left, const FRM& right)
+	{
+		return left.calcElementwiseProduct(right);
+	}
+
+	template <class FRM>
+	constexpr WAV<FRM> calcElementwiseProduct(const FRM& left, const WAV<FRM>& right)
+	{
+		return WAV<FRM>(right).calcElementwiseProduct(left);
+	}
+
+	template <class FRM>
+	constexpr WAV<FRM> calcElementwiseProduct(const FRM& left, WAV<FRM>&& right)
+	{
+		return right.calcElementwiseProduct(left);
+	}
+
+	template <class FRM>
+	constexpr WAV<FRM> calcElementwiseQuotient(const WAV<FRM>& left, const FRM& right)
+	{
+		return WAV<FRM>(left).calcElementwiseQuotient(right);
+	}
+
+	template <class FRM>
+	constexpr WAV<FRM> calcElementwiseQuotient(WAV<FRM>&& left, const FRM& right)
+	{
+		return left.calcElementwiseQuotient(right);
+	}
+
+	template <class FRM>
+	constexpr WAV<FRM> calcElementwiseQuotient(const FRM& left, const WAV<FRM>& right)
+	{
+		const ZTM wavLength = right.getLength();
+		WAV<FRM> ret(wavLength);
+		for(ZTM t = 0; t < wavLength; ++t)
+		{
+			ret[t] = calcElementwiseQuotient(left, right[t]);
+		}
+		return ret;
+	}
+
+	template <class FRM>
+	constexpr WAV<FRM> calcElementwiseQuotient(const FRM& left, WAV<FRM>&& right)
 	{
 		for(FRM& rightFrm : right)
 		{
-			rightFrm = left / rightFrm;
+			rightFrm = calcElementwiseQuotient(left, rightFrm);
 		}
 		return right;
 	}
