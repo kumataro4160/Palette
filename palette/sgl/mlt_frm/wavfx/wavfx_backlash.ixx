@@ -10,7 +10,6 @@ export namespace palette
 	{
 		const NTM wavLength = wav.getLength();
 		WAV<value_t> ret(wavLength);
-#pragma omp for
 		for(ZTM t = 0; t < wavLength; ++t)
 		{
 			ret[t] = deeproot::min(deeproot::max(wav(t) - deadBand, ret(t - 1)), wav(t) + deadBand);

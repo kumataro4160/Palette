@@ -9,7 +9,6 @@ namespace palette
 	{
 		const ZTM wavLength = wav.getLength() + (fixedLength ? 0 : 1);
 		WAV<FRM> ret(wavLength);
-#pragma omp for
 		for(ZTM t = 0; t < wavLength; ++t)
 		{
 			ret[t] = wav(t) - wav(t - 1);

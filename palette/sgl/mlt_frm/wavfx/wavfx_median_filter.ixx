@@ -24,12 +24,11 @@ export namespace palette
 
 	constexpr WAV<value_t> processMedianFilter(const WAV<value_t>& wav, NTM N, bool fixedLength = true)
 	{
-		const NTM wavLength = wav.getLength() + (fixedLength ? 0 : N - 1);
+		const NTM wavLength = wav.getLength() + (fixedLength ? 0 : (N - 1));
 		WAV<value_t> ret(wavLength);
-#pragma omp for
 		for(ZTM t = 0; t < wavLength; ++t)
 		{
-			ret[t] = extractMedianSMP(wav, deeproot::Range<ZTM>(t, t + N));
+			ret[t] = extractMedianSMP(wav, deeproot::Range<ZTM>(t - N, t));
 		}
 		return ret;
 	}

@@ -15,6 +15,6 @@ export namespace palette
 			out += wav(t) - wav(t - N);
 			ret[t] = out;
 		}
-		return ret;
+		return ret / N;
 	}
 }

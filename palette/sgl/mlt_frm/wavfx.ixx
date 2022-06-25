@@ -1,9 +1,13 @@
 export module palette.sgl.wavfx;
 
 export import palette.sgl.wavfx.bypass;
+export import palette.sgl.wavfx.terminator;
 
 export import palette.sgl.wavfx.wav_importer;
 export import palette.sgl.wavfx.wav_exporter;
+
+export import palette.sgl.wavfx.sine_wave_generator;
+export import palette.sgl.wavfx.white_noise_generator;
 
 export import palette.sgl.wavfx.dc_removal;
 export import palette.sgl.wavfx.moving_average_filter;
