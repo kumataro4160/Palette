@@ -2,14 +2,14 @@ export module palette.sgl.wavfx.sine_wave_generator;
 
 export import palette.sgl.wav;
 export import palette.sgl.ap;
-export import palette.sgl.fq;
+export import palette.xfq;
 import palette.sgl.og;
 import palette.sgl.th;
 import deeproot;
 
 export namespace palette
 {
-	constexpr WAV<AP> generateSineWav(FQ fq, NTM wavLength)
+	constexpr WAV<AP> generateSineWav(XFQ fq, NTM wavLength)
 	{
 		WAV<AP> ret(wavLength);
 		const OG og = 2.0 * deeproot::pi * fq;
@@ -20,7 +20,7 @@ export namespace palette
 		return ret;
 	}
 
-	constexpr WAV<AP> generateSineWav(const WAV<FQ>& fq)
+	constexpr WAV<AP> generateSineWav(const WAV<XFQ>& fq)
 	{
 		constexpr TH twoPi = 2.0 * deeproot::pi;
 		const NTM wavLength = fq.getLength();

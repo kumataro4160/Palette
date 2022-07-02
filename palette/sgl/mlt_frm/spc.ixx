@@ -4,8 +4,8 @@ module;
 
 export module palette.sgl.spc;
 
-export import palette.ztm;
-export import palette.ntm;
+export import palette.zfq;
+export import palette.nfq;
 export import palette.value_type;
 
 export namespace palette
@@ -35,23 +35,23 @@ export namespace palette
 		{
 
 		}
-		constexpr FRM& operator[](ZTM n)noexcept
+		constexpr FRM& operator[](ZFQ n)noexcept
 		{
 			return frms[n];
 		}
-		constexpr const FRM& operator[](ZTM n)const noexcept
+		constexpr const FRM& operator[](ZFQ n)const noexcept
 		{
 			return frms[n];
 		}
-		constexpr FRM& at(ZTM n)
+		constexpr FRM& at(ZFQ n)
 		{
 			return frms.at(n);
 		}
-		constexpr const FRM& at(ZTM n)const
+		constexpr const FRM& at(ZFQ n)const
 		{
 			return frms.at(n);
 		}
-		constexpr FRM operator()(ZTM n)const noexcept
+		constexpr FRM operator()(ZFQ n)const noexcept
 		{
 			if(0 <= n && n < getLength())
 			{
@@ -107,9 +107,9 @@ export namespace palette
 		{
 			return SPC<FRM>(*this) *= -1.0;
 		}
-		constexpr NTM getLength()const noexcept
+		constexpr NFQ getLength()const noexcept
 		{
-			return static_cast<NTM>(frms.size());
+			return static_cast<NFQ>(frms.size());
 		}
 		constexpr auto begin()noexcept
 		{
@@ -220,12 +220,12 @@ export namespace palette
 	template <class FRM>
 	constexpr SPC<FRM> operator/(value_t left, const SPC<FRM>& right)
 	{
-		const ZTM wavLength = right.getLength();
+		const ZFQ wavLength = right.getLength();
 		SPC<FRM> ret(wavLength);
 #pragma omp for
-		for(ZTM t = 0; t < wavLength; ++t)
+		for(ZFQ f = 0; f < wavLength; ++f)
 		{
-			ret[t] = calcElementwiseQuotient(FRM(left), right[t]);
+			ret[f] = calcElementwiseQuotient(FRM(left), right[f]);
 		}
 		return ret;
 	}
@@ -269,12 +269,12 @@ export namespace palette
 	template <class FRM>
 	constexpr SPC<FRM> calcElementwiseQuotient(const FRM& left, const SPC<FRM>& right)
 	{
-		const ZTM wavLength = right.getLength();
+		const ZFQ wavLength = right.getLength();
 		SPC<FRM> ret(wavLength);
 #pragma omp for
-		for(ZTM t = 0; t < wavLength; ++t)
+		for(ZFQ f = 0; f < wavLength; ++f)
 		{
-			ret[t] = calcElementwiseQuotient(left, right[t]);
+			ret[f] = calcElementwiseQuotient(left, right[f]);
 		}
 		return ret;
 	}
